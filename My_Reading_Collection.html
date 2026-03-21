@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reading Collection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1d3d5c 0%, #152d44 100%);
+            padding: 2rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .sync-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .sync-button, .export-button {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+
+        .export-button {
+            background: #4299e1;
+        }
+
+        .sync-button:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .export-button:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .sync-button:disabled, .export-button:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .sync-status {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: white;
+            text-align: center;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .filters {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .filter-group select, .filter-group input {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group select:hover, .filter-group input:hover {
+            border-color: #667eea;
+        }
+
+        .filter-group select:focus, .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .results-count {
+            margin-left: auto;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .view-toggle button {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .view-toggle button:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .view-toggle button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .shelf-container, .list-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .bookshelf {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .book-spine {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .book-spine:hover {
+            transform: translateY(-8px);
+        }
+
+        .book-cover {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 2/3;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .book-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            color: white;
+            padding: 1rem 0.5rem 0.5rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .book-spine:hover .book-overlay {
+            opacity: 1;
+        }
+
+        .book-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            line-height: 1.2;
+        }
+
+        .book-author {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin-bottom: 0.25rem;
+        }
+
+        .book-rating {
+            font-size: 0.9rem;
+            color: #ffd700;
+        }
+
+        .book-card {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.3s;
+        }
+
+        .book-card:hover {
+            background: #f7fafc;
+        }
+
+        .book-card:last-child {
+            border-bottom: none;
+        }
+
+        .book-card-cover {
+            width: 98px;
+            height: 147px;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+
+        .book-card-info {
+            flex: 1;
+        }
+
+        .book-card-info h3 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .book-card-info .author {
+            color: #718096;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-card-info .date {
+            color: #a0aec0;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-card-info .rating {
+            color: #ffd700;
+            font-size: 1.1rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #718096;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .results-count {
+                margin-left: 0;
+            }
+
+            .bookshelf {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 1rem;
+            }
+
+            .book-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 My Reading Collection</h1>
+        <p class="subtitle" id="bookCount">Loading books...</p>
+        <div class="sync-controls">
+            <button class="sync-button" id="syncButton" onclick="manualSync()">
+                🔄 Manual Sync Instructions
+            </button>
+            <button class="export-button" onclick="exportBooks()">
+                💾 Export Backup
+            </button>
+            <label class="export-button" style="cursor:pointer;" title="Import a JSON backup file">
+                📂 Import Backup
+                <input type="file" accept=".json" style="display:none;" onchange="handleImportFile(event)">
+            </label>
+        </div>
+        <div class="sync-status" id="syncStatus"></div>
+    </div>
+
+    <div class="controls">
+        <div class="filters">
+            <div class="filter-group">
+                <label for="year">Year:</label>
+                <select id="year" onchange="filterBooks()">
+                    <option value="all">All Years</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="rating">Rating:</label>
+                <select id="rating" onchange="filterBooks()">
+                    <option value="all">All Ratings</option>
+                    <option value="5">★★★★★</option>
+                    <option value="4">★★★★☆ & up</option>
+                    <option value="3">★★★☆☆ & up</option>
+                    <option value="2">★★☆☆☆ & up</option>
+                    <option value="1">★☆☆☆☆ & up</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="search">Search:</label>
+                <input type="text" id="search" placeholder="Title or author..." oninput="filterBooks()">
+            </div>
+
+            <div class="results-count" id="resultsCount">
+                Loading...
+            </div>
+        </div>
+
+        <div class="view-toggle">
+            <button class="active" onclick="setView('shelf')">
+                📚 Shelf View
+            </button>
+            <button onclick="setView('list')">
+                📋 List View
+            </button>
+        </div>
+    </div>
+
+    <div id="bookDisplay"></div>
+
+    <script>
+        const GOODREADS_USER_ID = '6426386';
+        let allBooks = [];
+        let filteredBooks = [];
+        let currentView = 'shelf';
+
+        // Initialize with pre-loaded books - This will be populated from localStorage or defaults
+        const INITIAL_BOOKS = []; // Books will be loaded from localStorage or synced
+
+        function init() {
+            loadBooks();
+            populateYearFilter();
+            filterBooks();
+            updateBookCount();
+        }
+
+        function loadBooks() {
+            const stored = localStorage.getItem('myReadingCollection');
+            if (stored) {
+                allBooks = JSON.parse(stored);
+            } else {
+                // First time - show sync instructions
+                allBooks = INITIAL_BOOKS;
+                if (allBooks.length === 0) {
+                    document.getElementById('syncStatus').innerHTML = 
+                        '👋 Welcome! Click "Manual Sync Instructions" to load your books from Goodreads.';
+                }
+            }
+        }
+
+        function saveBooks() {
+            localStorage.setItem('myReadingCollection', JSON.stringify(allBooks));
+        }
+
+        function updateBookCount() {
+            document.getElementById('bookCount').textContent = `${allBooks.length} books read`;
+        }
+
+        function populateYearFilter() {
+            const yearSelect = document.getElementById('year');
+            const years = [...new Set(allBooks.map(book => book.year))].filter(y => y).sort((a, b) => b - a);
+            
+            yearSelect.innerHTML = '<option value="all">All Years</option>';
+            
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            });
+        }
+
+        function filterBooks() {
+            const yearFilter = document.getElementById('year').value;
+            const ratingFilter = document.getElementById('rating').value;
+            const searchFilter = document.getElementById('search').value.toLowerCase();
+
+            filteredBooks = allBooks.filter(book => {
+                const matchesYear = yearFilter === 'all' || book.year === parseInt(yearFilter);
+                const matchesRating = ratingFilter === 'all' || book.rating >= parseInt(ratingFilter);
+                const matchesSearch = searchFilter === '' || 
+                    book.title.toLowerCase().includes(searchFilter) || 
+                    book.author.toLowerCase().includes(searchFilter);
+                
+                return matchesYear && matchesRating && matchesSearch;
+            });
+
+            document.getElementById('resultsCount').textContent = 
+                `Showing ${filteredBooks.length} of ${allBooks.length} books`;
+            
+            renderBooks();
+        }
+
+        function setView(view) {
+            currentView = view;
+            const buttons = document.querySelectorAll('.view-toggle button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderBooks();
+        }
+
+        function renderBooks() {
+            const display = document.getElementById('bookDisplay');
+            
+            if (filteredBooks.length === 0) {
+                if (allBooks.length === 0) {
+                    display.innerHTML = '<div class="no-results">No books loaded yet. Click "Manual Sync Instructions" above to get started!</div>';
+                } else {
+                    display.innerHTML = '<div class="no-results">No books found matching your filters</div>';
+                }
+                return;
+            }
+
+            if (currentView === 'shelf') {
+                renderShelfView(display);
+            } else {
+                renderListView(display);
+            }
+        }
+
+        function renderShelfView(display) {
+            display.className = 'shelf-container';
+            const bookshelf = document.createElement('div');
+            bookshelf.className = 'bookshelf';
+
+            filteredBooks.forEach(book => {
+                const bookSpine = document.createElement('div');
+                bookSpine.className = 'book-spine';
+                bookSpine.title = `${book.title} by ${book.author}`;
+
+                const coverUrl = book.coverUrl.replace('_SX50_', '_SY475_').replace('_SY75_', '_SY475_');
+                
+                bookSpine.innerHTML = `
+                    <div class="book-cover">
+                        <img src="${coverUrl}" alt="${book.title}" 
+                             onerror="this.src='https://via.placeholder.com/120x180/4a5568/ffffff?text=No+Cover'">
+                        <div class="book-overlay">
+                            <div class="book-title">${escapeHtml(book.title)}</div>
+                            <div class="book-author">${escapeHtml(book.author)}</div>
+                            ${book.rating > 0 ? `<div class="book-rating">${'★'.repeat(book.rating)}${'☆'.repeat(5 - book.rating)}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                bookshelf.appendChild(bookSpine);
+            });
+
+            display.innerHTML = '';
+            display.appendChild(bookshelf);
+        }
+
+        function renderListView(display) {
+            display.className = 'list-container';
+            display.innerHTML = '';
+
+            filteredBooks.forEach(book => {
+                const bookCard = document.createElement('div');
+                bookCard.className = 'book-card';
+
+                const coverUrl = book.coverUrl.replace('_SX50_', '_SX98_').replace('_SY75_', '_SX98_');
+                
+                bookCard.innerHTML = `
+                    <img src="${coverUrl}" alt="${book.title}" class="book-card-cover"
+                         onerror="this.src='https://via.placeholder.com/98x147/4a5568/ffffff?text=No+Cover'">
+                    <div class="book-card-info">
+                        <h3>${escapeHtml(book.title)}</h3>
+                        <p class="author">${escapeHtml(book.author)}</p>
+                        <p class="date">Read: ${book.dateRead}</p>
+                        ${book.rating > 0 ? `<div class="rating">${'★'.repeat(book.rating)}${'☆'.repeat(5 - book.rating)}</div>` : ''}
+                    </div>
+                `;
+                
+                display.appendChild(bookCard);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function manualSync() {
+            const script = `async function syncGoodreadsBooks() {
+    const books = [];
+    const totalPages = 5;
+
+    for (let page = 1; page <= totalPages; page++) {
+        const url = 'https://www.goodreads.com/review/list/6426386?shelf=read&per_page=100&page=' + page;
+        const response = await fetch(url);
+        const text = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        const rows = doc.querySelectorAll('tr.bookalike');
+
+        rows.forEach(row => {
+            const titleEl = row.querySelector('td.field.title a');
+            const authorEl = row.querySelector('td.field.author a');
+            const coverEl = row.querySelector('td.field.cover img');
+            const ratingEl = row.querySelector('td.field.rating .stars');
+            const dateEl = row.querySelector('td.field.date_read span.date_read_value');
+
+            if (titleEl) {
+                const dr = dateEl ? dateEl.textContent.trim() : 'Unknown';
+                const yr = dr.match(/\\d{4}/);
+                books.push({
+                    title: titleEl.textContent.trim().replace(/\\s+/g, ' '),
+                    author: authorEl ? authorEl.textContent.trim() : 'Unknown',
+                    coverUrl: coverEl ? coverEl.src : '',
+                    rating: ratingEl ? parseInt(ratingEl.getAttribute('data-rating')) || 0 : 0,
+                    dateRead: dr,
+                    year: yr ? parseInt(yr[0]) : null
+                });
+            }
+        });
+        console.log('Page ' + page + ' done — ' + books.length + ' books so far');
+    }
+
+    const blob = new Blob([JSON.stringify(books)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'my-reading-collection-backup-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    alert('✅ Downloaded ' + books.length + ' books!\\n\\nNow go to My_Reading_Collection_Complete.html and click "Import Backup" to load them.');
+}
+
+syncGoodreadsBooks();`;
+
+            const overlay = document.createElement('div');
+            overlay.id = 'syncModal';
+            overlay.style.cssText = `
+                position:fixed; top:0; left:0; width:100%; height:100%; 
+                background:rgba(0,0,0,0.7); z-index:9999; display:flex; 
+                align-items:center; justify-content:center; padding:1rem;
+            `;
+
+            overlay.innerHTML = `
+                <div style="background:white; border-radius:12px; padding:2rem; max-width:700px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+                    <h2 style="margin-bottom:1rem; color:#2d3748;">📖 How to Sync Your Goodreads Books</h2>
+                    <ol style="color:#4a5568; margin-bottom:1.5rem; padding-left:1.5rem; line-height:2.2;">
+                        <li>Open your <a href="https://www.goodreads.com/review/list/6426386?shelf=read&per_page=100" target="_blank" style="color:#667eea;">Goodreads read shelf</a> in a new tab</li>
+                        <li>Press <strong>F12</strong> → click the <strong>Console</strong> tab</li>
+                        <li>Click <strong>Copy Script</strong> below, paste it, and press <strong>Enter</strong></li>
+                        <li>It will automatically <strong>download a JSON file</strong> when done</li>
+                        <li>Come back here and click <strong>"📂 Import Backup"</strong> to load your books!</li>
+                    </ol>
+                    <div style="position:relative; margin-bottom:1rem;">
+                        <pre id="scriptText" style="background:#1a202c; color:#e2e8f0; padding:1.5rem; border-radius:8px; font-size:0.8rem; overflow-x:auto; white-space:pre-wrap; word-break:break-all; max-height:300px; overflow-y:auto;">${script.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+                    </div>
+                    <div style="display:flex; gap:1rem; justify-content:flex-end;">
+                        <button id="copyScriptBtn" onclick="
+                            navigator.clipboard.writeText(document.getElementById('scriptText').textContent).then(() => {
+                                this.textContent = '✅ Copied!';
+                                this.style.background = '#38a169';
+                                setTimeout(() => { this.textContent = '📋 Copy Script'; this.style.background = '#667eea'; }, 2000);
+                            });
+                        " style="background:#667eea; color:white; border:none; padding:0.75rem 1.5rem; border-radius:8px; font-size:1rem; cursor:pointer; font-weight:600;">
+                            📋 Copy Script
+                        </button>
+                        <button onclick="document.getElementById('syncModal').remove()" 
+                            style="background:#e2e8f0; color:#4a5568; border:none; padding:0.75rem 1.5rem; border-radius:8px; font-size:1rem; cursor:pointer;">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) overlay.remove();
+            });
+        }
+        function addBook(title, author, coverUrl, rating, dateRead, year) {
+            const book = {
+                title,
+                author,
+                coverUrl,
+                rating: parseInt(rating) || 0,
+                dateRead,
+                year: parseInt(year) || new Date().getFullYear()
+            };
+            
+            const exists = allBooks.some(b => b.title === title && b.author === author);
+            if (!exists) {
+                allBooks.push(book);
+                saveBooks();
+                init();
+                return `✅ Added: ${title}`;
+            }
+            return `⚠️ Book already exists: ${title}`;
+        }
+
+        function exportBooks() {
+            const dataStr = JSON.stringify(allBooks, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'my-reading-collection-backup-' + new Date().toISOString().split('T')[0] + '.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function handleImportFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const result = importBooks(e.target.result);
+                document.getElementById('syncStatus').innerHTML = result;
+                setTimeout(() => document.getElementById('syncStatus').innerHTML = '', 4000);
+            };
+            reader.readAsText(file);
+        }
+
+        function importBooks(jsonData) {
+            try {
+                const imported = JSON.parse(jsonData);
+                allBooks = imported;
+                saveBooks();
+                init();
+                return '✅ Books imported successfully!';
+            } catch (error) {
+                return '❌ Error importing: ' + error.message;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
