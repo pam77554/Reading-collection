@@ -162,37 +162,188 @@
             border-color: #667eea;
         }
 
-        .shelf-container, .list-container {
+        .list-container {
             background: white;
             border-radius: 12px;
             padding: 2rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .bookshelf {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 1.5rem;
-            padding: 1rem;
+        .shelf-container {
+            background: #8a5c28;
+            padding: 1.2rem;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.3);
         }
 
+        .bookshelf-row {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: flex-end;
+            gap: 16px;
+            padding: 1.5rem 1.5rem 0rem 1.5rem;
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px,
+                    transparent 1px, transparent 60px
+                ),
+                linear-gradient(180deg, #e8b87a 0%, #d4a060 40%, #c08840 100%);
+            border-radius: 4px;
+            min-height: 220px;
+            overflow-x: auto;
+        }
+
+        .shelf-plank {
+            height: 22px;
+            background: linear-gradient(180deg, 
+                #c8955a 0%, 
+                #b07840 30%, 
+                #8a5c28 60%, 
+                #b07840 100%);
+            border-radius: 3px;
+            margin-bottom: 1rem;
+            box-shadow: 0 6px 10px rgba(0,0,0,0.4), inset 0 1px 3px rgba(255,255,255,0.25), inset 0 -1px 2px rgba(0,0,0,0.3);
+        }
+
+        /* Book 3D wrapper */
         .book-spine {
             position: relative;
             cursor: pointer;
             transition: transform 0.3s;
+            flex: 0 0 auto;
+            width: 130px;
+            display: flex;
+            align-items: flex-end;
         }
 
         .book-spine:hover {
-            transform: translateY(-8px);
+            transform: translateY(-12px);
         }
+
+        /* Book detail modal */
+        .book-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .book-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            max-width: 540px;
+            width: 100%;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            display: flex;
+            gap: 2rem;
+            position: relative;
+        }
+
+        .book-modal-cover {
+            flex-shrink: 0;
+            width: 150px;
+        }
+
+        .book-modal-cover img {
+            width: 100%;
+            border-radius: 6px;
+            box-shadow: 4px 4px 16px rgba(0,0,0,0.3);
+        }
+
+        .book-modal-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .book-modal-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1a202c;
+            line-height: 1.3;
+        }
+
+        .book-modal-author {
+            font-size: 1rem;
+            color: #718096;
+            font-style: italic;
+        }
+
+        .book-modal-rating {
+            font-size: 1.4rem;
+            color: #f6ad55;
+            letter-spacing: 2px;
+        }
+
+        .book-modal-date {
+            font-size: 0.95rem;
+            color: #4a5568;
+        }
+
+        .book-modal-date span {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .book-modal-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            background: #1d3d5c;
+            color: white;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background 0.2s;
+            align-self: flex-start;
+        }
+
+        .book-modal-link:hover {
+            background: #2a5580;
+        }
+
+        .book-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #e2e8f0;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a5568;
+            transition: background 0.2s;
+        }
+
+        .book-modal-close:hover {
+            background: #cbd5e0;
+        }
+
+
 
         .book-cover {
             position: relative;
             width: 100%;
             aspect-ratio: 2/3;
-            border-radius: 8px;
+            border-radius: 2px 0 0 2px;
             overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 
+                -3px 0 6px rgba(0,0,0,0.4),
+                inset -4px 0 12px rgba(0,0,0,0.25),
+                inset 2px 0 6px rgba(255,255,255,0.1);
         }
 
         .book-cover img {
@@ -201,16 +352,31 @@
             object-fit: cover;
         }
 
+        /* Spine shadow overlay for depth */
+        .book-cover::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, 
+                rgba(0,0,0,0.18) 0%, 
+                transparent 20%, 
+                transparent 80%, 
+                rgba(0,0,0,0.25) 100%
+            );
+            pointer-events: none;
+        }
+
         .book-overlay {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            background: linear-gradient(to top, rgba(0,0,0,0.92), transparent);
             color: white;
             padding: 1rem 0.5rem 0.5rem;
             opacity: 0;
             transition: opacity 0.3s;
+            z-index: 2;
         }
 
         .book-spine:hover .book-overlay {
@@ -484,33 +650,45 @@
 
         function renderShelfView(display) {
             display.className = 'shelf-container';
-            const bookshelf = document.createElement('div');
-            bookshelf.className = 'bookshelf';
-
-            filteredBooks.forEach(book => {
-                const bookSpine = document.createElement('div');
-                bookSpine.className = 'book-spine';
-                bookSpine.title = `${book.title} by ${book.author}`;
-
-                const coverUrl = book.coverUrl.replace('_SX50_', '_SY475_').replace('_SY75_', '_SY475_');
-                
-                bookSpine.innerHTML = `
-                    <div class="book-cover">
-                        <img src="${coverUrl}" alt="${book.title}" 
-                             onerror="this.src='https://via.placeholder.com/120x180/4a5568/ffffff?text=No+Cover'">
-                        <div class="book-overlay">
-                            <div class="book-title">${escapeHtml(book.title)}</div>
-                            <div class="book-author">${escapeHtml(book.author)}</div>
-                            ${book.rating > 0 ? `<div class="book-rating">${'★'.repeat(book.rating)}${'☆'.repeat(5 - book.rating)}</div>` : ''}
-                        </div>
-                    </div>
-                `;
-                
-                bookshelf.appendChild(bookSpine);
-            });
-
             display.innerHTML = '';
-            display.appendChild(bookshelf);
+
+            const booksPerShelf = 6;
+            const totalShelves = Math.ceil(filteredBooks.length / booksPerShelf);
+
+            for (let s = 0; s < totalShelves; s++) {
+                const row = document.createElement('div');
+                row.className = 'bookshelf-row';
+
+                const shelfBooks = filteredBooks.slice(s * booksPerShelf, (s + 1) * booksPerShelf);
+
+                shelfBooks.forEach(book => {
+                    const bookSpine = document.createElement('div');
+                    bookSpine.className = 'book-spine';
+                    bookSpine.title = `${book.title} by ${book.author}`;
+
+                    const coverUrl = book.coverUrl.replace('_SX50_', '_SY475_').replace('_SY75_', '_SY475_');
+
+                    bookSpine.innerHTML = `
+                        <div class="book-cover">
+                            <img src="${coverUrl}" alt="${book.title}"
+                                 onerror="this.src='https://via.placeholder.com/130x195/4a5568/ffffff?text=No+Cover'">
+                            <div class="book-overlay">
+                                <div class="book-title">${escapeHtml(book.title)}</div>
+                                <div class="book-author">${escapeHtml(book.author)}</div>
+                                ${book.rating > 0 ? `<div class="book-rating">${'★'.repeat(book.rating)}${'☆'.repeat(5 - book.rating)}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+
+                    bookSpine.addEventListener('click', () => showBookDetail(book));
+                    row.appendChild(bookSpine);
+
+                display.appendChild(row);
+
+                const plank = document.createElement('div');
+                plank.className = 'shelf-plank';
+                display.appendChild(plank);
+            }
         }
 
         function renderListView(display) {
@@ -523,6 +701,7 @@
 
                 const coverUrl = book.coverUrl.replace('_SX50_', '_SX98_').replace('_SY75_', '_SX98_');
                 
+                const goodreadsUrl = `https://www.goodreads.com/search?q=${encodeURIComponent(book.title + ' ' + book.author)}`;
                 bookCard.innerHTML = `
                     <img src="${coverUrl}" alt="${book.title}" class="book-card-cover"
                          onerror="this.src='https://via.placeholder.com/98x147/4a5568/ffffff?text=No+Cover'">
@@ -531,6 +710,7 @@
                         <p class="author">${escapeHtml(book.author)}</p>
                         <p class="date">Read: ${book.dateRead}</p>
                         ${book.rating > 0 ? `<div class="rating">${'★'.repeat(book.rating)}${'☆'.repeat(5 - book.rating)}</div>` : ''}
+                        <a href="${goodreadsUrl}" target="_blank" style="display:inline-block; margin-top:0.5rem; color:#1d3d5c; font-size:0.85rem; text-decoration:none; font-weight:600;">📖 View on Goodreads</a>
                     </div>
                 `;
                 
@@ -687,6 +867,49 @@ syncGoodreadsBooks();`;
             } catch (error) {
                 return '❌ Error importing: ' + error.message;
             }
+        }
+
+        function showBookDetail(book) {
+            const existing = document.getElementById('bookDetailModal');
+            if (existing) existing.remove();
+
+            const coverUrl = book.coverUrl.replace('_SX50_', '_SY475_').replace('_SY75_', '_SY475_');
+            const goodreadsUrl = `https://www.goodreads.com/search?q=${encodeURIComponent(book.title + ' ' + book.author)}`;
+            const stars = book.rating > 0
+                ? '★'.repeat(book.rating) + '☆'.repeat(5 - book.rating)
+                : 'Not rated';
+
+            const overlay = document.createElement('div');
+            overlay.className = 'book-modal-overlay';
+            overlay.id = 'bookDetailModal';
+
+            const safeTitle = escapeHtml(book.title);
+            const safeAuthor = escapeHtml(book.author);
+
+            const img = document.createElement('img');
+            img.src = coverUrl;
+            img.alt = book.title;
+            img.onerror = function() { this.src='https://via.placeholder.com/150x225/4a5568/ffffff?text=No+Cover'; };
+
+            overlay.innerHTML = `
+                <div class="book-modal">
+                    <button class="book-modal-close" onclick="document.getElementById('bookDetailModal').remove()">✕</button>
+                    <div class="book-modal-cover" id="modalCoverSlot"></div>
+                    <div class="book-modal-info">
+                        <div class="book-modal-title">${safeTitle}</div>
+                        <div class="book-modal-author">by ${safeAuthor}</div>
+                        <div class="book-modal-rating">${stars}</div>
+                        <div class="book-modal-date">📅 Date read: <span>${book.dateRead || 'Unknown'}</span></div>
+                        <a class="book-modal-link" href="${goodreadsUrl}" target="_blank">📖 View on Goodreads</a>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+            document.getElementById('modalCoverSlot').appendChild(img);
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) overlay.remove();
+            });
         }
 
         window.addEventListener('DOMContentLoaded', init);
