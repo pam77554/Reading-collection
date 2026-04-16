@@ -743,83 +743,55 @@
         }
 
         function manualSync() {
-            const script = `async function syncGoodreadsBooks() {
-    const books = [];
-    const totalPages = 5;
-
-    for (let page = 1; page <= totalPages; page++) {
-        const url = 'https://www.goodreads.com/review/list/6426386?shelf=read&per_page=100&page=' + page;
-        const response = await fetch(url);
-        const text = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(text, 'text/html');
-        const rows = doc.querySelectorAll('tr.bookalike');
-
-        rows.forEach(row => {
-            const titleEl = row.querySelector('td.field.title a');
-            const authorEl = row.querySelector('td.field.author a');
-            const coverEl = row.querySelector('td.field.cover img');
-            const ratingEl = row.querySelector('td.field.rating .stars');
-            const dateEl = row.querySelector('td.field.date_read span.date_read_value');
-
-            if (titleEl) {
-                const dr = dateEl ? dateEl.textContent.trim() : 'Unknown';
-                const yr = dr.match(/\\d{4}/);
-                books.push({
-                    title: titleEl.textContent.trim().replace(/\\s+/g, ' '),
-                    author: authorEl ? authorEl.textContent.trim() : 'Unknown',
-                    coverUrl: coverEl ? coverEl.src : '',
-                    rating: ratingEl ? parseInt(ratingEl.getAttribute('data-rating')) || 0 : 0,
-                    dateRead: dr,
-                    year: yr ? parseInt(yr[0]) : null
-                });
-            }
-        });
-        console.log('Page ' + page + ' done — ' + books.length + ' books so far');
-    }
-
-    const blob = new Blob([JSON.stringify(books)], {type:'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'my-reading-collection-backup-' + new Date().toISOString().split('T')[0] + '.json';
-    a.click();
-    alert('✅ Downloaded ' + books.length + ' books!\\n\\nNow go to My_Reading_Collection_Complete.html and click "Import Backup" to load them.');
-}
-
-syncGoodreadsBooks();`;
+            const bookmarklet = `javascript:(function(){async function syncGoodreadsBooks(){const books=[];const totalPages=5;for(let page=1;page<=totalPages;page++){const url='https://www.goodreads.com/review/list/6426386?shelf=read&per_page=100&page='+page;const response=await fetch(url);const text=await response.text();const parser=new DOMParser();const doc=parser.parseFromString(text,'text/html');const rows=doc.querySelectorAll('tr.bookalike');rows.forEach(function(row){const titleEl=row.querySelector('td.field.title a');const authorEl=row.querySelector('td.field.author a');const coverEl=row.querySelector('td.field.cover img');const ratingEl=row.querySelector('td.field.rating .stars');const dateEl=row.querySelector('td.field.date_read span.date_read_value');if(titleEl){const dr=dateEl?dateEl.textContent.trim():'Unknown';const yr=dr.match(/\\d{4}/);books.push({title:titleEl.textContent.trim().replace(/\\s+/g,' '),author:authorEl?authorEl.textContent.trim():'Unknown',coverUrl:coverEl?coverEl.src:'',rating:ratingEl?parseInt(ratingEl.getAttribute('data-rating'))||0:0,dateRead:dr,year:yr?parseInt(yr[0]):null})}});console.log('Page '+page+' done, '+books.length+' books so far');}const blob=new Blob([JSON.stringify(books)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='books.json';a.click();alert('Done! '+books.length+' books saved to books.json');}syncGoodreadsBooks();})();`;
 
             const overlay = document.createElement('div');
             overlay.id = 'syncModal';
             overlay.style.cssText = `
-                position:fixed; top:0; left:0; width:100%; height:100%; 
-                background:rgba(0,0,0,0.7); z-index:9999; display:flex; 
+                position:fixed; top:0; left:0; width:100%; height:100%;
+                background:rgba(0,0,0,0.7); z-index:9999; display:flex;
                 align-items:center; justify-content:center; padding:1rem;
             `;
 
             overlay.innerHTML = `
-                <div style="background:white; border-radius:12px; padding:2rem; max-width:700px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.4);">
-                    <h2 style="margin-bottom:1rem; color:#2d3748;">📖 How to Sync Your Goodreads Books</h2>
-                    <ol style="color:#4a5568; margin-bottom:1.5rem; padding-left:1.5rem; line-height:2.2;">
-                        <li>Open your <a href="https://www.goodreads.com/review/list/6426386?shelf=read&per_page=100" target="_blank" style="color:#667eea;">Goodreads read shelf</a> in a new tab</li>
-                        <li>Press <strong>F12</strong> → click the <strong>Console</strong> tab</li>
-                        <li>Click <strong>Copy Script</strong> below, paste it, and press <strong>Enter</strong></li>
-                        <li>It will automatically <strong>download a JSON file</strong> when done</li>
-                        <li>Come back here and click <strong>"📂 Import Backup"</strong> to load your books!</li>
-                    </ol>
-                    <div style="position:relative; margin-bottom:1rem;">
-                        <pre id="scriptText" style="background:#1a202c; color:#e2e8f0; padding:1.5rem; border-radius:8px; font-size:0.8rem; overflow-x:auto; white-space:pre-wrap; word-break:break-all; max-height:300px; overflow-y:auto;">${script.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+                <div style="background:white; border-radius:12px; padding:2rem; max-width:680px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+                    <h2 style="margin-bottom:0.5rem; color:#2d3748;">🔄 How to Sync Your Goodreads Books</h2>
+                    <p style="color:#718096; margin-bottom:1.5rem; font-size:0.95rem;">Use the bookmarklet for one-click syncing — no console needed!</p>
+
+                    <div style="background:#f0fff4; border:1px solid #9ae6b4; border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
+                        <p style="font-weight:700; color:#276749; margin-bottom:0.75rem;">⭐ One-time setup: Add the bookmarklet</p>
+                        <ol style="color:#2f855a; padding-left:1.5rem; line-height:2.2; margin:0;">
+                            <li>Right-click your Chrome bookmarks bar → <strong>Add page</strong></li>
+                            <li>Name it <strong>Sync Goodreads</strong></li>
+                            <li>Paste the code below into the <strong>URL field</strong></li>
+                            <li>Click <strong>Save</strong></li>
+                        </ol>
+                        <div style="margin-top:1rem;">
+                            <pre id="bookmarkletText" style="background:#1a202c; color:#e2e8f0; padding:1rem; border-radius:8px; font-size:0.75rem; overflow-x:auto; white-space:pre-wrap; word-break:break-all; max-height:80px; overflow-y:auto;">${bookmarklet}</pre>
+                            <button onclick="
+                                navigator.clipboard.writeText(document.getElementById('bookmarkletText').textContent).then(() => {
+                                    this.textContent = '✅ Copied!';
+                                    this.style.background = '#38a169';
+                                    setTimeout(() => { this.textContent = '📋 Copy Bookmarklet Code'; this.style.background = '#667eea'; }, 2000);
+                                });
+                            " style="margin-top:0.75rem; background:#667eea; color:white; border:none; padding:0.6rem 1.2rem; border-radius:8px; font-size:0.9rem; cursor:pointer; font-weight:600;">
+                                📋 Copy Bookmarklet Code
+                            </button>
+                        </div>
                     </div>
-                    <div style="display:flex; gap:1rem; justify-content:flex-end;">
-                        <button id="copyScriptBtn" onclick="
-                            navigator.clipboard.writeText(document.getElementById('scriptText').textContent).then(() => {
-                                this.textContent = '✅ Copied!';
-                                this.style.background = '#38a169';
-                                setTimeout(() => { this.textContent = '📋 Copy Script'; this.style.background = '#667eea'; }, 2000);
-                            });
-                        " style="background:#667eea; color:white; border:none; padding:0.75rem 1.5rem; border-radius:8px; font-size:1rem; cursor:pointer; font-weight:600;">
-                            📋 Copy Script
-                        </button>
-                        <button onclick="document.getElementById('syncModal').remove()" 
+
+                    <div style="background:#ebf8ff; border:1px solid #90cdf4; border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
+                        <p style="font-weight:700; color:#2b6cb0; margin-bottom:0.75rem;">🔄 Every time you want to sync</p>
+                        <ol style="color:#2c5282; padding-left:1.5rem; line-height:2.2; margin:0;">
+                            <li>Go to your <a href="https://www.goodreads.com/review/list/6426386?shelf=read&per_page=100" target="_blank" style="color:#3182ce;">Goodreads read shelf</a></li>
+                            <li>Click the <strong>Sync Goodreads</strong> bookmark — it downloads <strong>books.json</strong></li>
+                            <li>Go to your <a href="https://github.com/pam77554/Reading-collection" target="_blank" style="color:#3182ce;">GitHub repo</a> → click <strong>books.json</strong> → upload the new file</li>
+                            <li>Your live site updates automatically in 1-2 minutes! ✅</li>
+                        </ol>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end;">
+                        <button onclick="document.getElementById('syncModal').remove()"
                             style="background:#e2e8f0; color:#4a5568; border:none; padding:0.75rem 1.5rem; border-radius:8px; font-size:1rem; cursor:pointer;">
                             Close
                         </button>
