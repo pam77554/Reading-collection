@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Reading Collection</title>
+    <title>My Books</title>
     <style>
         * {
             margin: 0;
@@ -13,74 +13,60 @@
 
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg, #1d3d5c 0%, #152d44 100%);
-            padding: 2rem;
+            background: #fffbef;
+            padding: 0 2rem 2rem;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .banner-img {
+            width: 100%;
+            display: block;
+            margin-bottom: 1rem;
         }
 
         .header {
             text-align: center;
-            color: white;
+            color: #3d2b1f;
             margin-bottom: 2rem;
         }
 
         .header h1 {
             font-size: 3rem;
             margin-bottom: 0.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
+            color: #888888;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
         }
 
         .sync-controls {
             display: flex;
-            gap: 1rem;
+            gap: 1.5rem;
             justify-content: center;
-            margin-top: 1rem;
+            margin-top: 0.75rem;
             flex-wrap: wrap;
         }
 
-        .sync-button, .export-button {
-            background: #48bb78;
-            color: white;
+        .ctrl-link {
+            background: none;
             border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-size: 1rem;
+            color: #9c7e6a;
+            font-size: 0.85rem;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: all 0.3s;
+            padding: 0;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+            font-family: inherit;
         }
 
-        .export-button {
-            background: #4299e1;
-        }
-
-        .sync-button:hover {
-            background: #38a169;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-
-        .export-button:hover {
-            background: #3182ce;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-
-        .sync-button:disabled, .export-button:disabled {
-            background: #a0aec0;
-            cursor: not-allowed;
-            transform: none;
+        .ctrl-link:hover {
+            color: #6b4f3a;
+            border-bottom-color: #9c7e6a;
         }
 
         .sync-status {
             margin-top: 0.5rem;
-            font-size: 0.9rem;
-            color: white;
+            font-size: 0.85rem;
+            color: #7a6050;
             text-align: center;
         }
 
@@ -152,198 +138,47 @@
         }
 
         .view-toggle button:hover {
-            border-color: #667eea;
+            border-color: #d2ceb5;
             transform: translateY(-2px);
         }
 
         .view-toggle button.active {
-            background: #667eea;
+            background: #d2ceb5;
             color: white;
-            border-color: #667eea;
+            border-color: #d2ceb5;
         }
 
-        .list-container {
+        .shelf-container, .list-container {
             background: white;
             border-radius: 12px;
             padding: 2rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .shelf-container {
-            background: #8a5c28;
-            padding: 1.2rem;
-            border-radius: 12px;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.3);
+        .bookshelf {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
         }
 
-        .bookshelf-row {
-            display: flex;
-            flex-wrap: nowrap;
-            align-items: flex-end;
-            gap: 16px;
-            padding: 1.5rem 1.5rem 0rem 1.5rem;
-            background:
-                repeating-linear-gradient(
-                    90deg,
-                    rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px,
-                    transparent 1px, transparent 60px
-                ),
-                linear-gradient(180deg, #e8b87a 0%, #d4a060 40%, #c08840 100%);
-            border-radius: 4px;
-            min-height: 220px;
-            overflow-x: auto;
-        }
-
-        .shelf-plank {
-            height: 22px;
-            background: linear-gradient(180deg, 
-                #c8955a 0%, 
-                #b07840 30%, 
-                #8a5c28 60%, 
-                #b07840 100%);
-            border-radius: 3px;
-            margin-bottom: 1rem;
-            box-shadow: 0 6px 10px rgba(0,0,0,0.4), inset 0 1px 3px rgba(255,255,255,0.25), inset 0 -1px 2px rgba(0,0,0,0.3);
-        }
-
-        /* Book 3D wrapper */
         .book-spine {
             position: relative;
             cursor: pointer;
             transition: transform 0.3s;
-            flex: 0 0 auto;
-            width: 130px;
-            display: flex;
-            align-items: flex-end;
         }
 
         .book-spine:hover {
-            transform: translateY(-12px);
+            transform: translateY(-8px);
         }
-
-        /* Book detail modal */
-        .book-modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.75);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-
-        .book-modal {
-            background: white;
-            border-radius: 16px;
-            padding: 2.5rem;
-            max-width: 540px;
-            width: 100%;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
-            display: flex;
-            gap: 2rem;
-            position: relative;
-        }
-
-        .book-modal-cover {
-            flex-shrink: 0;
-            width: 150px;
-        }
-
-        .book-modal-cover img {
-            width: 100%;
-            border-radius: 6px;
-            box-shadow: 4px 4px 16px rgba(0,0,0,0.3);
-        }
-
-        .book-modal-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .book-modal-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #1a202c;
-            line-height: 1.3;
-        }
-
-        .book-modal-author {
-            font-size: 1rem;
-            color: #718096;
-            font-style: italic;
-        }
-
-        .book-modal-rating {
-            font-size: 1.4rem;
-            color: #f6ad55;
-            letter-spacing: 2px;
-        }
-
-        .book-modal-date {
-            font-size: 0.95rem;
-            color: #4a5568;
-        }
-
-        .book-modal-date span {
-            font-weight: 600;
-            color: #2d3748;
-        }
-
-        .book-modal-link {
-            display: inline-block;
-            margin-top: 0.5rem;
-            background: #1d3d5c;
-            color: white;
-            text-decoration: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: background 0.2s;
-            align-self: flex-start;
-        }
-
-        .book-modal-link:hover {
-            background: #2a5580;
-        }
-
-        .book-modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: #e2e8f0;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            font-size: 1.1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #4a5568;
-            transition: background 0.2s;
-        }
-
-        .book-modal-close:hover {
-            background: #cbd5e0;
-        }
-
-
 
         .book-cover {
             position: relative;
             width: 100%;
             aspect-ratio: 2/3;
-            border-radius: 2px 0 0 2px;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 
-                -3px 0 6px rgba(0,0,0,0.4),
-                inset -4px 0 12px rgba(0,0,0,0.25),
-                inset 2px 0 6px rgba(255,255,255,0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .book-cover img {
@@ -352,31 +187,16 @@
             object-fit: cover;
         }
 
-        /* Spine shadow overlay for depth */
-        .book-cover::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(90deg, 
-                rgba(0,0,0,0.18) 0%, 
-                transparent 20%, 
-                transparent 80%, 
-                rgba(0,0,0,0.25) 100%
-            );
-            pointer-events: none;
-        }
-
         .book-overlay {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.92), transparent);
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
             color: white;
             padding: 1rem 0.5rem 0.5rem;
             opacity: 0;
             transition: opacity 0.3s;
-            z-index: 2;
         }
 
         .book-spine:hover .book-overlay {
@@ -459,6 +279,268 @@
             font-size: 1.2rem;
         }
 
+        /* ── BOOK DETAIL MODAL ─────────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            animation: fadeIn 0.15s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal-box {
+            background: white;
+            border-radius: 14px;
+            padding: 2rem;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            display: flex;
+            gap: 1.75rem;
+            position: relative;
+            animation: slideUp 0.2s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .modal-cover {
+            width: 120px;
+            flex-shrink: 0;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            object-fit: cover;
+            align-self: flex-start;
+        }
+
+        .modal-info { flex: 1; }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1d3d5c;
+            margin-bottom: 0.3rem;
+            line-height: 1.3;
+        }
+
+        .modal-author {
+            font-size: 1rem;
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
+
+        .modal-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            margin-bottom: 1.1rem;
+        }
+
+        .modal-meta-row {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .modal-meta-label {
+            color: #a0aec0;
+            min-width: 110px;
+            font-weight: 500;
+        }
+
+        .modal-meta-value { color: #2d3748; }
+
+        .modal-rating { color: #ffd700; font-size: 1.2rem; letter-spacing: 1px; }
+
+        .modal-gr-link {
+            display: inline-block;
+            margin-top: 0.25rem;
+            padding: 0.5rem 1.1rem;
+            background: #1d3d5c;
+            color: white;
+            text-decoration: none;
+            border-radius: 7px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .modal-gr-link:hover { background: #2a5580; }
+
+        .modal-close {
+            position: absolute;
+            top: 0.75rem; right: 0.75rem;
+            background: none; border: none;
+            font-size: 1.4rem; cursor: pointer;
+            color: #a0aec0; line-height: 1;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        .modal-close:hover { background: #f7fafc; color: #4a5568; }
+
+        /* ── WOODEN BOOKSHELF VIEW ─────────────────────────── */
+        .wooden-shelf-container {
+            background: #f0e6d0;
+            border-radius: 12px;
+            padding: 2rem 1.5rem 1rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .shelf-row {
+            margin-bottom: 1rem;
+        }
+
+        .shelf-row:last-child {
+            margin-bottom: 0.5rem;
+        }
+
+        .shelf-books {
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            padding: 0 12px;
+            min-height: 190px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+
+        .shelf-book {
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: transform 0.2s ease, filter 0.2s ease;
+            position: relative;
+        }
+
+        .shelf-book:hover {
+            transform: translateY(-14px);
+            filter: brightness(1.08);
+            z-index: 2;
+        }
+
+        .shelf-book img {
+            height: 165px;
+            width: auto;
+            min-width: 60px;
+            max-width: 110px;
+            display: block;
+            border-radius: 2px 4px 4px 2px;
+            box-shadow:
+                3px 0 6px rgba(0,0,0,0.5),
+                inset -3px 0 6px rgba(0,0,0,0.25),
+                inset 1px 0 2px rgba(255,255,255,0.08);
+            object-fit: cover;
+        }
+
+        /* shelf plank — layered gradients for wood grain */
+        .shelf-plank {
+            height: 26px;
+            margin: 0 -4px;
+            border-radius: 3px;
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 60px,
+                    rgba(0,0,0,0.04) 60px,
+                    rgba(0,0,0,0.04) 62px
+                ),
+                linear-gradient(
+                    180deg,
+                    #e8b86d 0%,
+                    #c9892a 15%,
+                    #b87820 35%,
+                    #d4a040 55%,
+                    #a06418 75%,
+                    #8a5210 100%
+                );
+            box-shadow:
+                0 8px 16px rgba(0,0,0,0.55),
+                0 3px 6px rgba(0,0,0,0.4),
+                inset 0 2px 3px rgba(255,255,255,0.18),
+                inset 0 -1px 2px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        /* highlight strip along top edge of plank */
+        .shelf-plank::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg,
+                rgba(255,255,255,0.05),
+                rgba(255,255,255,0.22) 30%,
+                rgba(255,255,255,0.28) 50%,
+                rgba(255,255,255,0.18) 70%,
+                rgba(255,255,255,0.05)
+            );
+            border-radius: 3px 3px 0 0;
+        }
+
+        /* shadow under plank face */
+        .shelf-plank::after {
+            content: '';
+            position: absolute;
+            bottom: -10px; left: 0; right: 0;
+            height: 10px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.35), transparent);
+        }
+
+        /* ── SHARE VIEW ─────────────────────────── */
+        .share-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .share-hint {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #a0aec0;
+            margin-bottom: 1rem;
+        }
+        .share-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 130px);
+            gap: 0.75rem 0.75rem;
+            background: white;
+            padding: 0.5rem;
+            justify-content: center;
+        }
+        .share-book {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            cursor: pointer;
+        }
+        .share-book img {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .share-book-title {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #4a5568;
+            line-height: 1.3;
+        }
+        .share-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -487,19 +569,17 @@
     </style>
 </head>
 <body>
+
+    <img class="banner-img" src="Art for html/watercolor-book-border.jpg" alt="">
+
     <div class="header">
-        <h1>📚 My Reading Collection</h1>
-        <p class="subtitle" id="bookCount">Loading books...</p>
+        <h1>My Books</h1>
         <div class="sync-controls">
-            <button class="sync-button" id="syncButton" onclick="manualSync()">
-                🔄 Manual Sync Instructions
-            </button>
-            <button class="export-button" onclick="exportBooks()">
-                💾 Export Backup
-            </button>
-            <label class="export-button" style="cursor:pointer;" title="Import a JSON backup file">
-                📂 Import Backup
-                <input type="file" accept=".json" style="display:none;" id="importFileInput">
+            <button class="ctrl-link" id="syncButton" onclick="manualSync()">Manual Sync Instructions</button>
+            <button class="ctrl-link" onclick="exportBooks()">Export Backup</button>
+            <label class="ctrl-link" title="Import a JSON backup file">
+                Import Backup
+                <input type="file" accept=".json" style="display:none;" onchange="handleImportFile(event)">
             </label>
         </div>
         <div class="sync-status" id="syncStatus"></div>
@@ -537,12 +617,10 @@
         </div>
 
         <div class="view-toggle">
-            <button class="active" onclick="setView('shelf')">
-                📚 Shelf View
-            </button>
-            <button onclick="setView('list')">
-                📋 List View
-            </button>
+            <button class="active" onclick="setView('shelf')">Shelf View</button>
+            <button onclick="setView('list')">List View</button>
+            <button onclick="setView('wooden')">Bookshelf View</button>
+            <button onclick="setView('share')">Share View</button>
         </div>
     </div>
 
@@ -553,46 +631,30 @@
         let allBooks = [];
         let filteredBooks = [];
         let currentView = 'shelf';
+        let sharePageIndex = 0;
 
         // Initialize with pre-loaded books - This will be populated from localStorage or defaults
         const INITIAL_BOOKS = []; // Books will be loaded from localStorage or synced
 
         function init() {
             loadBooks();
-            document.getElementById('importFileInput').addEventListener('change', handleImportFile);
-        }
-
-        async function loadBooks() {
-            // First try localStorage (most recent import)
-            const stored = localStorage.getItem('myReadingCollection');
-            if (stored) {
-                allBooks = JSON.parse(stored);
-                populateYearFilter();
-                filterBooks();
-                updateBookCount();
-                return;
-            }
-
-            // Fall back to books.json in the same folder as this page
-            try {
-                const response = await fetch('books.json');
-                if (response.ok) {
-                    allBooks = await response.json();
-                    saveBooks(); // cache in localStorage for next time
-                    populateYearFilter();
-                    filterBooks();
-                    updateBookCount();
-                    return;
-                }
-            } catch(e) {}
-
-            // Nothing found
-            allBooks = [];
             populateYearFilter();
             filterBooks();
             updateBookCount();
-            document.getElementById('syncStatus').innerHTML =
-                '👋 Welcome! Click "Manual Sync Instructions" to load your books from Goodreads.';
+        }
+
+        function loadBooks() {
+            const stored = localStorage.getItem('myReadingCollection');
+            if (stored) {
+                allBooks = JSON.parse(stored);
+            } else {
+                // First time - show sync instructions
+                allBooks = INITIAL_BOOKS;
+                if (allBooks.length === 0) {
+                    document.getElementById('syncStatus').innerHTML = 
+                        '👋 Welcome! Click "Manual Sync Instructions" to load your books from Goodreads.';
+                }
+            }
         }
 
         function saveBooks() {
@@ -600,7 +662,7 @@
         }
 
         function updateBookCount() {
-            document.getElementById('bookCount').textContent = `${allBooks.length} books read`;
+            // count shown in resultsCount only
         }
 
         function populateYearFilter() {
@@ -640,6 +702,7 @@
 
         function setView(view) {
             currentView = view;
+            if (view === 'share') sharePageIndex = 0;
             const buttons = document.querySelectorAll('.view-toggle button');
             buttons.forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
@@ -660,53 +723,122 @@
 
             if (currentView === 'shelf') {
                 renderShelfView(display);
+            } else if (currentView === 'wooden') {
+                renderWoodenShelfView(display);
+            } else if (currentView === 'share') {
+                renderShareView(display);
             } else {
                 renderListView(display);
             }
         }
 
-        function renderShelfView(display) {
-            display.className = 'shelf-container';
+        function renderWoodenShelfView(display) {
+            display.className = 'wooden-shelf-container';
             display.innerHTML = '';
-
-            const booksPerShelf = 6;
-            const totalShelves = Math.ceil(filteredBooks.length / booksPerShelf);
-
-            for (let s = 0; s < totalShelves; s++) {
+            const BOOKS_PER_SHELF = 10;
+            for (let i = 0; i < filteredBooks.length; i += BOOKS_PER_SHELF) {
+                const chunk = filteredBooks.slice(i, i + BOOKS_PER_SHELF);
                 const row = document.createElement('div');
-                row.className = 'bookshelf-row';
-
-                const shelfBooks = filteredBooks.slice(s * booksPerShelf, (s + 1) * booksPerShelf);
-
-                shelfBooks.forEach(book => {
-                    const bookSpine = document.createElement('div');
-                    bookSpine.className = 'book-spine';
-                    bookSpine.title = `${book.title} by ${book.author}`;
-
-                    const coverUrl = book.coverUrl.replace('_SX50_', '_SY475_').replace('_SY75_', '_SY475_');
-
-                    bookSpine.innerHTML = `
-                        <div class="book-cover">
-                            <img src="${coverUrl}" alt="${book.title}"
-                                 onerror="this.src='https://via.placeholder.com/130x195/4a5568/ffffff?text=No+Cover'">
-                            <div class="book-overlay">
-                                <div class="book-title">${escapeHtml(book.title)}</div>
-                                <div class="book-author">${escapeHtml(book.author)}</div>
-                                ${book.rating > 0 ? `<div class="book-rating">${'★'.repeat(book.rating)}${'☆'.repeat(5 - book.rating)}</div>` : ''}
-                            </div>
-                        </div>
-                    `;
-
-                    bookSpine.addEventListener('click', () => showBookDetail(book));
-                    row.appendChild(bookSpine);
+                row.className = 'shelf-row';
+                const booksDiv = document.createElement('div');
+                booksDiv.className = 'shelf-books';
+                chunk.forEach(book => {
+                    const bookEl = document.createElement('div');
+                    bookEl.className = 'shelf-book';
+                    bookEl.title = `${book.title} by ${book.author}`;
+                    bookEl.onclick = () => openBookModal(book);
+                    const coverUrl = (book.coverUrl || '').replace('_SX50_', '_SY475_').replace('_SY75_', '_SY475_');
+                    bookEl.innerHTML = `<img src="${coverUrl}" alt="${escapeHtml(book.title)}"
+                        onerror="this.src='https://via.placeholder.com/80x160/4a5568/ffffff?text=?'">`;
+                    booksDiv.appendChild(bookEl);
                 });
-
-                display.appendChild(row);
-
                 const plank = document.createElement('div');
                 plank.className = 'shelf-plank';
-                display.appendChild(plank);
+                row.appendChild(booksDiv);
+                row.appendChild(plank);
+                display.appendChild(row);
             }
+        }
+
+        function renderShareView(display) {
+            display.className = 'share-container';
+            display.innerHTML = '';
+            const PAGE_SIZE = 12;
+            const totalPages = Math.ceil(filteredBooks.length / PAGE_SIZE);
+            const start = sharePageIndex * PAGE_SIZE;
+            const pageBooks = filteredBooks.slice(start, start + PAGE_SIZE);
+
+            const hint = document.createElement('p');
+            hint.className = 'share-hint';
+            hint.textContent = `Page ${sharePageIndex + 1} of ${totalPages} · Screenshot the grid below to share`;
+            display.appendChild(hint);
+
+            const grid = document.createElement('div');
+            grid.className = 'share-grid';
+            pageBooks.forEach(book => {
+                const bookEl = document.createElement('div');
+                bookEl.className = 'share-book';
+                bookEl.onclick = () => openBookModal(book);
+                const coverUrl = (book.coverUrl || '').replace('_SX50_', '_SY475_').replace('_SY75_', '_SY475_');
+                const stars = book.rating > 0
+                    ? '★'.repeat(book.rating) + '☆'.repeat(5 - book.rating)
+                    : '☆☆☆☆☆';
+                bookEl.innerHTML = `
+                    <img src="${coverUrl}" alt="${escapeHtml(book.title)}"
+                        onerror="this.src='https://via.placeholder.com/120x180/e2e8f0/718096?text=?'">
+                    <div class="share-book-title">My rating: ${stars}</div>`;
+                grid.appendChild(bookEl);
+            });
+            display.appendChild(grid);
+
+            const nav = document.createElement('div');
+            nav.className = 'share-nav';
+            const prevDisabled = sharePageIndex === 0;
+            const nextDisabled = sharePageIndex >= totalPages - 1;
+            nav.innerHTML = `
+                <button class="ctrl-link" onclick="shareNav(-1)"
+                    ${prevDisabled ? 'disabled style="opacity:0.3;cursor:default"' : ''}>← Prev</button>
+                <span>${filteredBooks.length} books total</span>
+                <button class="ctrl-link" onclick="shareNav(1)"
+                    ${nextDisabled ? 'disabled style="opacity:0.3;cursor:default"' : ''}>Next →</button>`;
+            display.appendChild(nav);
+        }
+
+        function shareNav(dir) {
+            sharePageIndex += dir;
+            renderShareView(document.getElementById('bookDisplay'));
+        }
+
+        function renderShelfView(display) {
+            display.className = 'shelf-container';
+            const bookshelf = document.createElement('div');
+            bookshelf.className = 'bookshelf';
+
+            filteredBooks.forEach(book => {
+                const bookSpine = document.createElement('div');
+                bookSpine.className = 'book-spine';
+                bookSpine.title = `${book.title} by ${book.author}`;
+                bookSpine.onclick = () => openBookModal(book);
+
+                const coverUrl = book.coverUrl.replace('_SX50_', '_SY475_').replace('_SY75_', '_SY475_');
+                
+                bookSpine.innerHTML = `
+                    <div class="book-cover">
+                        <img src="${coverUrl}" alt="${book.title}" 
+                             onerror="this.src='https://via.placeholder.com/120x180/4a5568/ffffff?text=No+Cover'">
+                        <div class="book-overlay">
+                            <div class="book-title">${escapeHtml(book.title)}</div>
+                            <div class="book-author">${escapeHtml(book.author)}</div>
+                            ${book.rating > 0 ? `<div class="book-rating">${'★'.repeat(book.rating)}${'☆'.repeat(5 - book.rating)}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                bookshelf.appendChild(bookSpine);
+            });
+
+            display.innerHTML = '';
+            display.appendChild(bookshelf);
         }
 
         function renderListView(display) {
@@ -719,7 +851,6 @@
 
                 const coverUrl = book.coverUrl.replace('_SX50_', '_SX98_').replace('_SY75_', '_SX98_');
                 
-                const goodreadsUrl = `https://www.goodreads.com/search?q=${encodeURIComponent(book.title + ' ' + book.author)}`;
                 bookCard.innerHTML = `
                     <img src="${coverUrl}" alt="${book.title}" class="book-card-cover"
                          onerror="this.src='https://via.placeholder.com/98x147/4a5568/ffffff?text=No+Cover'">
@@ -728,7 +859,11 @@
                         <p class="author">${escapeHtml(book.author)}</p>
                         <p class="date">Read: ${book.dateRead}</p>
                         ${book.rating > 0 ? `<div class="rating">${'★'.repeat(book.rating)}${'☆'.repeat(5 - book.rating)}</div>` : ''}
-                        <a href="${goodreadsUrl}" target="_blank" style="display:inline-block; margin-top:0.5rem; color:#1d3d5c; font-size:0.85rem; text-decoration:none; font-weight:600;">📖 View on Goodreads</a>
+                        <a href="${book.goodreadsUrl || `https://www.goodreads.com/search?q=${encodeURIComponent(book.title + ' ' + book.author)}`}"
+                           target="_blank" rel="noopener"
+                           style="display:inline-block;margin-top:0.5rem;font-size:0.85rem;color:#1d3d5c;text-decoration:none;font-weight:600;">
+                            View on Goodreads &rarr;
+                        </a>
                     </div>
                 `;
                 
@@ -743,55 +878,85 @@
         }
 
         function manualSync() {
-            const bookmarklet = `javascript:(function(){async function syncGoodreadsBooks(){const books=[];const totalPages=5;for(let page=1;page<=totalPages;page++){const url='https://www.goodreads.com/review/list/6426386?shelf=read&per_page=100&page='+page;const response=await fetch(url);const text=await response.text();const parser=new DOMParser();const doc=parser.parseFromString(text,'text/html');const rows=doc.querySelectorAll('tr.bookalike');rows.forEach(function(row){const titleEl=row.querySelector('td.field.title a');const authorEl=row.querySelector('td.field.author a');const coverEl=row.querySelector('td.field.cover img');const ratingEl=row.querySelector('td.field.rating .stars');const dateEl=row.querySelector('td.field.date_read span.date_read_value');if(titleEl){const dr=dateEl?dateEl.textContent.trim():'Unknown';const yr=dr.match(/\\d{4}/);books.push({title:titleEl.textContent.trim().replace(/\\s+/g,' '),author:authorEl?authorEl.textContent.trim():'Unknown',coverUrl:coverEl?coverEl.src:'',rating:ratingEl?parseInt(ratingEl.getAttribute('data-rating'))||0:0,dateRead:dr,year:yr?parseInt(yr[0]):null})}});console.log('Page '+page+' done, '+books.length+' books so far');}const blob=new Blob([JSON.stringify(books)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='books.json';a.click();alert('Done! '+books.length+' books saved to books.json');}syncGoodreadsBooks();})();`;
+            const script = `async function syncGoodreadsBooks() {
+    const books = [];
+    const totalPages = 5;
+
+    for (let page = 1; page <= totalPages; page++) {
+        const url = 'https://www.goodreads.com/review/list/6426386?shelf=read&per_page=100&page=' + page;
+        const response = await fetch(url);
+        const text = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        const rows = doc.querySelectorAll('tr.bookalike');
+
+        rows.forEach(row => {
+            const titleEl = row.querySelector('td.field.title a');
+            const authorEl = row.querySelector('td.field.author a');
+            const coverEl = row.querySelector('td.field.cover img');
+            const ratingEl = row.querySelector('td.field.rating .stars');
+            const dateEl = row.querySelector('td.field.date_read span.date_read_value');
+            if (titleEl) {
+                const dr = dateEl ? dateEl.textContent.trim() : 'Unknown';
+                const yr = dr.match(/\\d{4}/);
+                const grPath = titleEl.getAttribute('href') || '';
+                const grUrl = grPath ? 'https://www.goodreads.com' + grPath.split('?')[0] : '';
+                books.push({
+                    title: titleEl.textContent.trim().replace(/\\s+/g, ' '),
+                    author: authorEl ? authorEl.textContent.trim() : 'Unknown',
+                    coverUrl: coverEl ? coverEl.src : '',
+                    rating: ratingEl ? parseInt(ratingEl.getAttribute('data-rating')) || 0 : 0,
+                    dateRead: dr,
+                    year: yr ? parseInt(yr[0]) : null,
+                    goodreadsUrl: grUrl
+                });
+            }
+        });
+        console.log('Page ' + page + ' done — ' + books.length + ' books so far');
+    }
+
+    const blob = new Blob([JSON.stringify(books)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = new Date().toISOString().split('T')[0] + '-My-reading-collection-backup.json';
+    a.click();
+    alert('✅ Downloaded ' + books.length + ' books!\\n\\nNow go to My_Reading_Collection_Complete.html and click "Import Backup" to load them.');
+}
+
+syncGoodreadsBooks();`;
 
             const overlay = document.createElement('div');
             overlay.id = 'syncModal';
             overlay.style.cssText = `
-                position:fixed; top:0; left:0; width:100%; height:100%;
-                background:rgba(0,0,0,0.7); z-index:9999; display:flex;
+                position:fixed; top:0; left:0; width:100%; height:100%; 
+                background:rgba(0,0,0,0.7); z-index:9999; display:flex; 
                 align-items:center; justify-content:center; padding:1rem;
             `;
 
             overlay.innerHTML = `
-                <div style="background:white; border-radius:12px; padding:2rem; max-width:680px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.4);">
-                    <h2 style="margin-bottom:0.5rem; color:#2d3748;">🔄 How to Sync Your Goodreads Books</h2>
-                    <p style="color:#718096; margin-bottom:1.5rem; font-size:0.95rem;">Use the bookmarklet for one-click syncing — no console needed!</p>
-
-                    <div style="background:#f0fff4; border:1px solid #9ae6b4; border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
-                        <p style="font-weight:700; color:#276749; margin-bottom:0.75rem;">⭐ One-time setup: Add the bookmarklet</p>
-                        <ol style="color:#2f855a; padding-left:1.5rem; line-height:2.2; margin:0;">
-                            <li>Right-click your Chrome bookmarks bar → <strong>Add page</strong></li>
-                            <li>Name it <strong>Sync Goodreads</strong></li>
-                            <li>Paste the code below into the <strong>URL field</strong></li>
-                            <li>Click <strong>Save</strong></li>
-                        </ol>
-                        <div style="margin-top:1rem;">
-                            <pre id="bookmarkletText" style="background:#1a202c; color:#e2e8f0; padding:1rem; border-radius:8px; font-size:0.75rem; overflow-x:auto; white-space:pre-wrap; word-break:break-all; max-height:80px; overflow-y:auto;">${bookmarklet}</pre>
-                            <button onclick="
-                                navigator.clipboard.writeText(document.getElementById('bookmarkletText').textContent).then(() => {
-                                    this.textContent = '✅ Copied!';
-                                    this.style.background = '#38a169';
-                                    setTimeout(() => { this.textContent = '📋 Copy Bookmarklet Code'; this.style.background = '#667eea'; }, 2000);
-                                });
-                            " style="margin-top:0.75rem; background:#667eea; color:white; border:none; padding:0.6rem 1.2rem; border-radius:8px; font-size:0.9rem; cursor:pointer; font-weight:600;">
-                                📋 Copy Bookmarklet Code
-                            </button>
-                        </div>
+                <div style="background:white; border-radius:12px; padding:2rem; max-width:700px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+                    <h2 style="margin-bottom:1rem; color:#2d3748;">📖 How to Sync Your Goodreads Books</h2>
+                    <ol style="color:#4a5568; margin-bottom:1.5rem; padding-left:1.5rem; line-height:2.2;">
+                        <li>Open your <a href="https://www.goodreads.com/review/list/6426386?shelf=read&per_page=100" target="_blank" style="color:#667eea;">Goodreads read shelf</a> in a new tab</li>
+                        <li>Press <strong>F12</strong> → click the <strong>Console</strong> tab</li>
+                        <li>Click <strong>Copy Script</strong> below, paste it, and press <strong>Enter</strong></li>
+                        <li>It will automatically <strong>download a JSON file</strong> when done</li>
+                        <li>Come back here and click <strong>"📂 Import Backup"</strong> to load your books!</li>
+                    </ol>
+                    <div style="position:relative; margin-bottom:1rem;">
+                        <pre id="scriptText" style="background:#1a202c; color:#e2e8f0; padding:1.5rem; border-radius:8px; font-size:0.8rem; overflow-x:auto; white-space:pre-wrap; word-break:break-all; max-height:300px; overflow-y:auto;">${script.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
                     </div>
-
-                    <div style="background:#ebf8ff; border:1px solid #90cdf4; border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
-                        <p style="font-weight:700; color:#2b6cb0; margin-bottom:0.75rem;">🔄 Every time you want to sync</p>
-                        <ol style="color:#2c5282; padding-left:1.5rem; line-height:2.2; margin:0;">
-                            <li>Go to your <a href="https://www.goodreads.com/review/list/6426386?shelf=read&per_page=100" target="_blank" style="color:#3182ce;">Goodreads read shelf</a></li>
-                            <li>Click the <strong>Sync Goodreads</strong> bookmark — it downloads <strong>books.json</strong></li>
-                            <li>Go to your <a href="https://github.com/pam77554/Reading-collection" target="_blank" style="color:#3182ce;">GitHub repo</a> → click <strong>books.json</strong> → upload the new file</li>
-                            <li>Your live site updates automatically in 1-2 minutes! ✅</li>
-                        </ol>
-                    </div>
-
-                    <div style="display:flex; justify-content:flex-end;">
-                        <button onclick="document.getElementById('syncModal').remove()"
+                    <div style="display:flex; gap:1rem; justify-content:flex-end;">
+                        <button id="copyScriptBtn" onclick="
+                            navigator.clipboard.writeText(document.getElementById('scriptText').textContent).then(() => {
+                                this.textContent = '✅ Copied!';
+                                this.style.background = '#38a169';
+                                setTimeout(() => { this.textContent = '📋 Copy Script'; this.style.background = '#667eea'; }, 2000);
+                            });
+                        " style="background:#667eea; color:white; border:none; padding:0.75rem 1.5rem; border-radius:8px; font-size:1rem; cursor:pointer; font-weight:600;">
+                            📋 Copy Script
+                        </button>
+                        <button onclick="document.getElementById('syncModal').remove()" 
                             style="background:#e2e8f0; color:#4a5568; border:none; padding:0.75rem 1.5rem; border-radius:8px; font-size:1rem; cursor:pointer;">
                             Close
                         </button>
@@ -830,7 +995,7 @@
             const url = URL.createObjectURL(dataBlob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'my-reading-collection-backup-' + new Date().toISOString().split('T')[0] + '.json';
+            link.download = new Date().toISOString().split('T')[0] + '-My-reading-collection-backup.json';
             link.click();
             URL.revokeObjectURL(url);
         }
@@ -852,56 +1017,68 @@
                 const imported = JSON.parse(jsonData);
                 allBooks = imported;
                 saveBooks();
-                populateYearFilter();
-                filterBooks();
-                updateBookCount();
-                return '✅ ' + imported.length + ' books imported successfully!';
+                init();
+                return '✅ Books imported successfully!';
             } catch (error) {
                 return '❌ Error importing: ' + error.message;
             }
         }
 
-        function showBookDetail(book) {
-            const existing = document.getElementById('bookDetailModal');
-            if (existing) existing.remove();
+        // ── BOOK DETAIL MODAL ──────────────────────────────────────
+        function openBookModal(book) {
+            closeBookModal();
 
-            const coverUrl = book.coverUrl.replace('_SX50_', '_SY475_').replace('_SY75_', '_SY475_');
-            const goodreadsUrl = `https://www.goodreads.com/search?q=${encodeURIComponent(book.title + ' ' + book.author)}`;
+            const coverUrl = (book.coverUrl || '').replace('_SX50_', '_SY475_').replace('_SY75_', '_SY475_');
             const stars = book.rating > 0
                 ? '★'.repeat(book.rating) + '☆'.repeat(5 - book.rating)
                 : 'Not rated';
 
+            const grUrl = book.goodreadsUrl
+                || `https://www.goodreads.com/search?q=${encodeURIComponent(book.title + ' ' + book.author)}`;
+
+            const yearRead = book.year || (book.dateRead ? (book.dateRead.match(/\d{4}/) || ['—'])[0] : '—');
+
             const overlay = document.createElement('div');
-            overlay.className = 'book-modal-overlay';
-            overlay.id = 'bookDetailModal';
-
-            const safeTitle = escapeHtml(book.title);
-            const safeAuthor = escapeHtml(book.author);
-
-            const img = document.createElement('img');
-            img.src = coverUrl;
-            img.alt = book.title;
-            img.onerror = function() { this.src='https://via.placeholder.com/150x225/4a5568/ffffff?text=No+Cover'; };
-
+            overlay.className = 'modal-overlay';
+            overlay.id = 'bookModalOverlay';
             overlay.innerHTML = `
-                <div class="book-modal">
-                    <button class="book-modal-close" onclick="document.getElementById('bookDetailModal').remove()">✕</button>
-                    <div class="book-modal-cover" id="modalCoverSlot"></div>
-                    <div class="book-modal-info">
-                        <div class="book-modal-title">${safeTitle}</div>
-                        <div class="book-modal-author">by ${safeAuthor}</div>
-                        <div class="book-modal-rating">${stars}</div>
-                        <div class="book-modal-date">📅 Date read: <span>${book.dateRead || 'Unknown'}</span></div>
-                        <a class="book-modal-link" href="${goodreadsUrl}" target="_blank">📖 View on Goodreads</a>
+                <div class="modal-box">
+                    <button class="modal-close" onclick="closeBookModal()" title="Close">&times;</button>
+                    <img class="modal-cover" src="${coverUrl}" alt="${escapeHtml(book.title)}"
+                         onerror="this.src='https://via.placeholder.com/120x180/4a5568/ffffff?text=No+Cover'">
+                    <div class="modal-info">
+                        <div class="modal-title">${escapeHtml(book.title)}</div>
+                        <div class="modal-author">${escapeHtml(book.author)}</div>
+                        <div class="modal-meta">
+                            <div class="modal-meta-row">
+                                <span class="modal-meta-label">Date Read:</span>
+                                <span class="modal-meta-value">${book.dateRead || yearRead}</span>
+                            </div>
+                            <div class="modal-meta-row">
+                                <span class="modal-meta-label">My rating:</span>
+                                <span class="modal-rating">${stars}</span>
+                            </div>
+                        </div>
+                        <a class="modal-gr-link" href="${grUrl}" target="_blank" rel="noopener">
+                            View on Goodreads &rarr;
+                        </a>
                     </div>
                 </div>
             `;
 
+            overlay.addEventListener('click', e => { if (e.target === overlay) closeBookModal(); });
+            document.addEventListener('keydown', _modalKeyHandler);
             document.body.appendChild(overlay);
-            document.getElementById('modalCoverSlot').appendChild(img);
-            overlay.addEventListener('click', function(e) {
-                if (e.target === overlay) overlay.remove();
-            });
+        }
+
+        function closeBookModal() {
+            const el = document.getElementById('bookModalOverlay');
+            if (el) el.remove();
+            document.removeEventListener('keydown', _modalKeyHandler);
+        }
+
+        function _modalKeyHandler(e) {
+            if (e.key === 'Escape') closeBookModal();
         }
 
         window.addEventListener('DOMContentLoaded', init);
