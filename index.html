@@ -638,22 +638,33 @@
 
         function init() {
             loadBooks();
-            populateYearFilter();
-            filterBooks();
-            updateBookCount();
         }
 
         function loadBooks() {
             const stored = localStorage.getItem('myReadingCollection');
             if (stored) {
                 allBooks = JSON.parse(stored);
+                populateYearFilter();
+                filterBooks();
+                updateBookCount();
             } else {
-                // First time - show sync instructions
-                allBooks = INITIAL_BOOKS;
-                if (allBooks.length === 0) {
-                    document.getElementById('syncStatus').innerHTML = 
-                        '👋 Welcome! Click "Manual Sync Instructions" to load your books from Goodreads.';
-                }
+                fetch('books.json')
+                    .then(r => r.json())
+                    .then(data => {
+                        allBooks = data;
+                        localStorage.setItem('myReadingCollection', JSON.stringify(allBooks));
+                        populateYearFilter();
+                        filterBooks();
+                        updateBookCount();
+                    })
+                    .catch(() => {
+                        allBooks = INITIAL_BOOKS;
+                        populateYearFilter();
+                        filterBooks();
+                        updateBookCount();
+                        document.getElementById('syncStatus').innerHTML =
+                            '👋 Welcome! Click "Manual Sync Instructions" to load your books from Goodreads.';
+                    });
             }
         }
 
